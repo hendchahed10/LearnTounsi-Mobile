@@ -1,0 +1,6 @@
+# Forcer GitHub à reconnaître Dart
+*.dart linguist-detectable=true
+
+# Ignorer les fichiers C++ générés par Flutter
+*.cpp linguist-detectable=false
+*.h linguist-detectable=false

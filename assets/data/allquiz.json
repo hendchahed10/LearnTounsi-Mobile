@@ -1,0 +1,300 @@
+{
+  "Finance_&_Comptabilité": {
+    "Chapitre 1 : Comptabilité Générale": [
+      {
+        "question": "Quel est le rôle principal du bilan comptable ?",
+        "options": [
+          "Mesurer la rentabilité d'une entreprise",
+          "Présenter la situation financière à un instant T",
+          "Analyser la productivité",
+          "Mesurer le coût de production"
+        ],
+        "correct": 1
+      },
+      {
+        "question": "Le Plan Comptable permet :",
+        "options": [
+          "De définir les normes de communication interne",
+          "D’organiser les comptes comptables",
+          "D’automatiser la comptabilité",
+          "De calculer les impôts"
+        ],
+        "correct": 1
+      },
+      {
+        "question": "Dans quelle partie du bilan retrouve-t-on les dettes ?",
+        "options": [
+          "Actif",
+          "Passif",
+          "Hors bilan",
+          "Charges"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 2 : Analyse Financière": [
+      {
+        "question": "Quel ratio mesure la liquidité d'une entreprise ?",
+        "options": [
+          "ROE",
+          "Current Ratio",
+          "Taux de marge",
+          "Délai de rotation"
+        ],
+        "correct": 1
+      },
+      {
+        "question": "Le compte de résultat permet d’analyser :",
+        "options": [
+          "La situation financière",
+          "La performance économique",
+          "L'endettement",
+          "Les amortissements"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 3 : Finance d’Entreprise": [
+      {
+        "question": "Quel indicateur permet de juger la rentabilité d’un investissement ?",
+        "options": [
+          "TRI",
+          "ROI",
+          "CPC",
+          "DSO"
+        ],
+        "correct": 0
+      },
+      {
+        "question": "Quelle source de financement implique la distribution de dividendes ?",
+        "options": [
+          "Capitaux propres",
+          "Dette bancaire",
+          "Subvention",
+          "Crédit-bail"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  "Cybersécurité": {
+    "Chapitre 1 : Introduction à la Sécurité Informatique": [
+      {
+        "question": "Quel est l’objectif principal d’une attaque phishing ?",
+        "options": [
+          "Voler des données",
+          "Arrêter les serveurs",
+          "Détruire le matériel",
+          "Accélérer le réseau"
+        ],
+        "correct": 0
+      },
+      {
+        "question": "Quels sont les trois piliers de la sécurité ?",
+        "options": [
+          "Coût, performance, sécurité",
+          "Confidentialité, intégrité, disponibilité",
+          "VM, Firewall, Antivirus",
+          "SaaS, IaaS, PaaS"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 2 : Sécurité Réseau": [
+      {
+        "question": "Quel protocole permet de sécuriser les communications web ?",
+        "options": [
+          "HTTP",
+          "HTTPS",
+          "FTP",
+          "SMTP"
+        ],
+        "correct": 1
+      },
+      {
+        "question": "Un pare-feu sert à :",
+        "options": [
+          "Accélérer Internet",
+          "Filtrer et contrôler le trafic réseau",
+          "Stocker des données",
+          "Scanner des antivirus"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 3 : Ethical Hacking": [
+      {
+        "question": "La première étape d’un test d’intrusion est :",
+        "options": [
+          "Exploitation",
+          "Reconnaissance",
+          "Escalade de privilèges",
+          "Nettoyage"
+        ],
+        "correct": 1
+      },
+      {
+        "question": "Quel outil est utilisé pour le scan réseau ?",
+        "options": [
+          "Nmap",
+          "Word",
+          "Photoshop",
+          "React"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  "Soft_Skills": {
+    "Chapitre 1 : Communication Professionnelle": [
+      {
+        "question": "L’écoute active consiste à :",
+        "options": [
+          "Attendre son turn pour parler",
+          "Reformuler et comprendre réellement l’autre",
+          "Ignorer les détails",
+          "Interrompre pour préciser"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 2 : Gestion du Temps et Organisation": [
+      {
+        "question": "La matrice d’Eisenhower sert à :",
+        "options": [
+          "Calculer la productivité",
+          "Prioriser les tâches",
+          "Mesurer le stress",
+          "Planifier les vacances"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 3 : Prise de Parole en Public": [
+      {
+        "question": "Quel élément augmente la persuasion ?",
+        "options": [
+          "Monotonie",
+          "Structure claire et rythme",
+          "Manque de préparation",
+          "Parler trop vite"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  "Développement_Web": {
+    "HTML & CSS – Débutant": [
+      {
+        "question": "HTML sert à :",
+        "options": [
+          "Styliser une page web",
+          "Structurer le contenu",
+          "Programmer un backend",
+          "Envoyer des mails"
+        ],
+        "correct": 1
+      }
+    ],
+    "JavaScript – Initiation": [
+      {
+        "question": "React fonctionne sur :",
+        "options": [
+          "Composants",
+          "Serveurs uniquement",
+          "SQL",
+          "Fichiers EXE"
+        ],
+        "correct": 0
+      }
+    ],
+    "Les frameworks (react,angular)": [
+      {
+        "question": "Quel framework permet de créer des API en JavaScript ?",
+        "options": [
+          "React",
+          "Express",
+          "CSS",
+          "MongoDB"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  "Data_&_Analyse": {
+    "Chapitre 1 : Analyse sur Excel": [
+      {
+        "question": "Une TCD signifie :",
+        "options": [
+          "Tableau Comparatif Détaillé",
+          "Tableau Croisé Dynamique",
+          "Technique Comptable de Déclaration",
+          "Tableau Client Développé"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 2 : Business Intelligence": [
+      {
+        "question": "Power BI permet de :",
+        "options": [
+          "Créer des jeux vidéo",
+          "Construire des tableaux de bord interactifs",
+          "Dessiner des logos",
+          "Compiler du code"
+        ],
+        "correct": 1
+      }
+    ],
+    "Chapitre 3 : Data Programming": [
+      {
+        "question": "Pandas sert à :",
+        "options": [
+          "Gérer des DataFrames",
+          "Programmer des robots",
+          "Créer des jeux 3D",
+          "Compiler du code C"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  "Marketing_Digital": {
+    "SEO": [
+      {
+        "question": "Le SEO vise à :",
+        "options": [
+          "Optimiser la sécurité réseau",
+          "Améliorer le référencement naturel",
+          "Créer une campagne TV",
+          "Concevoir un site e-commerce"
+        ],
+        "correct": 1
+      }
+    ],
+    "Publicité Réseaux Sociaux": [
+      {
+        "question": "Quel indicateur mesure la rentabilité d’une campagne ?",
+        "options": [
+          "CTR",
+          "ROI",
+          "CPM",
+          "Reach"
+        ],
+        "correct": 1
+      }
+    ],
+    "Google Ads": [
+      {
+        "question": "Le CPC correspond à :",
+        "options": [
+          "Coût par clic",
+          "Centre de performance commerciale",
+          "Clients par commande",
+          "Classement publicitaire"
+        ],
+        "correct": 0
+      }
+    ]
+  }
+}

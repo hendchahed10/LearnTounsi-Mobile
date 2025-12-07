@@ -129,7 +129,7 @@ class _EcranListeEtudiantsState extends State<EcranListeEtudiants> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(e.nom+' '+ e.prenom),
+        title: Text('${e?.nom}  ${e?.prenom}'),
         content: Text('Email : ${e.email}\n Date de naissance : ${e.dateNaissance}\n Créé le : ${e.createdAt}'),
         actions: [
           TextButton(onPressed: Navigator.of(context).pop, child: const Text('Fermer'))

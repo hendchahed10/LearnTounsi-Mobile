@@ -81,6 +81,7 @@ class MyApp extends StatelessWidget {
               create: (_) => StatsCoursViewModel(matiereTitre),
               child: EcranStatistiquesCours(),
             ),
+            settings: settings,
           );
         }
 

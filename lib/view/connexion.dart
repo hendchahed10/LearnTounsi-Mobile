@@ -130,12 +130,22 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HomePage(),
-                        ),
-                      );
+                      final futureRole= authVM.roleUtilisateur();
+                      final String role = await futureRole;
+                      if (role=='etudiant') {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HomePage(),
+                          ),
+                        );
+                      }
+                      else if (role=='admin'){
+                        try {
+                          print('ROLE : ${role}');
+                          Navigator.pushReplacementNamed(context, '/matieres');
+                        } catch (e) {print('ERREUR : $e');}
+                        }
                     }
                   }
                 },

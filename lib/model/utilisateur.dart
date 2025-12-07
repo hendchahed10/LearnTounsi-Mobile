@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 class Utilisateur{
   final String id; // ID du document Firestore
   String email;
-  String nom;
-  String prenom;
+  String? nom;
+  String? prenom;
   String? dateNaissance;
   final DateTime createdAt;
   final String role;

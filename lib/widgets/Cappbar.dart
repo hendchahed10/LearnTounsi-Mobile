@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/auth_viewmodel.dart';
 import '../view/profile.dart';
+import '../view/connexion.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -12,6 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final authVM = Provider.of<AuthViewModel>(context);
+    final isLoggedIn = authVM.user != null;
 
     return AppBar(
       elevation: 4,
@@ -27,8 +29,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
 
       actions: [
-        // Affichage email utilisateur si connecté
-        if (authVM.user != null)
+        // ---------------------------
+        // 🔐 UTILISATEUR CONNECTÉ
+        // ---------------------------
+        if (isLoggedIn) ...[
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Center(
@@ -43,10 +47,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-        // Bouton profil (optionnel)
-        if (authVM.user != null)
           IconButton(
             icon: const Icon(Icons.account_circle, color: Colors.white),
+            tooltip: "Profil",
             onPressed: () {
               Navigator.push(
                 context,
@@ -54,8 +57,32 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             },
           ),
+        ],
 
-        // Bouton Menu / Drawer
+        // ---------------------------
+        // 🚪 UTILISATEUR NON CONNECTÉ
+        // ---------------------------
+        if (!isLoggedIn)
+          TextButton.icon(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.login, color: Colors.white),
+            label: const Text(
+              "Se connecter",
+              style: TextStyle(fontSize: 14, color: Colors.white),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => LoginPage()),
+              );
+            },
+          ),
+
+        // ---------------------------
+        // MENU / DRAWER
+        // ---------------------------
         Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),

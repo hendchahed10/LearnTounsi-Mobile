@@ -1,12 +1,8 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:learntounsi_mobile/main.dart';
 import 'package:learntounsi_mobile/model/matiere.dart';
 import 'package:learntounsi_mobile/model/cours.dart';
 import 'package:learntounsi_mobile/viewmodel/cours_viewmodel.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/gardient.dart';
 class EcranDetailsMatiere extends StatefulWidget {
   @override
@@ -284,16 +280,16 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  cours.description ?? 'Aucune description.',
+                  cours.description,
                   maxLines: 6,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13, color: const Color(0xFF243e36).withOpacity(.7), height: 1.3),
+                  style: TextStyle(fontSize: 13, color: const Color(0xFF243e36).withValues(alpha: .7), height: 1.3),
                 ),
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7ca982).withOpacity(.3),
+                    color: const Color(0xFF7ca982).withValues(alpha: .3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -333,7 +329,7 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: Image.network(
+      child: Image.asset(
         'assets/images/${c.image}',
         height: 120,
         width: double.infinity,
@@ -353,19 +349,6 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
                   style: TextStyle(fontSize: 10, color: Colors.grey),
                 ),
               ],
-            ),
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child; //si le chargement est complet, retourner l'image
-          return Container(
-            height: 120,
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! //barre de progression tant que l’image télécharge
-                    : null,
-              ),
             ),
           );
         },
@@ -402,19 +385,6 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Impossible d’ouvrir le PDF')));
-    }
-  }
-
-  Future<void> _deletePdf(Cours cours, {required bool gratuit}) async {
-    try {
-      await _vm.deletePdf(cours: cours, gratuit: gratuit);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF ${gratuit ? 'gratuit' : 'payant'} supprimé')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur suppression : $e')),
-      );
     }
   }
 

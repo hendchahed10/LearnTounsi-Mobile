@@ -295,7 +295,7 @@ class _EcranMatieresState extends State<EcranMatieres> {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: Image.network(
+      child: Image.asset(
         'assets/images/${m.image}',
         height: 120,
         width: double.infinity,
@@ -315,19 +315,6 @@ class _EcranMatieresState extends State<EcranMatieres> {
                   style: TextStyle(fontSize: 10, color: Colors.grey),
                 ),
               ],
-            ),
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child; //si le chargement est complet, retourner l'image
-          return Container(
-            height: 120,
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! //barre de progression tant que l’image télécharge
-                    : null,
-              ),
             ),
           );
         },

@@ -1,31 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../viewmodel/homeVM.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../viewmodel/auth_viewmodel.dart';
-
+import '../viewmodel/homeVM.dart';
 import 'connexion.dart';
 import 'coursparMA.dart';
 import '../widgets/top_navbar.dart';
 import '../widgets/Cappbar.dart';
-
 import '../services/paymee_service.dart';
-import 'payment_page_matiere.dart';   // ⭐ PAGE DE PAIEMENT MATIÈRE
+import 'payment_page_matiere.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  // ⭐ Lancement du paiement Paymee pour une MATIÈRE
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Map<String, bool> purchasedMatieres = {}; // <matiereId, true>
+
+  /// 🔥 Vérifier si la matière est déjà achetée
+  Future<void> checkIfPurchased(String matiereId, String userId) async {
+    final query = await FirebaseFirestore.instance
+        .collection("abonnement")
+        .where("matiere_id", isEqualTo: matiereId)
+        .where("user_id", isEqualTo: userId)
+        .limit(1)
+        .get();
+
+    setState(() {
+      purchasedMatieres[matiereId] = query.docs.isNotEmpty;
+    });
+  }
+
+  /// ⭐ Paiement Paymee
   Future<void> startPayment(BuildContext context, dynamic m) async {
     final authVM = Provider.of<AuthViewModel>(context, listen: false);
     final user = authVM.user;
 
-    // 🔒 Utilisateur non connecté → page login
     if (user == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => LoginPage()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => LoginPage()));
       return;
     }
 
@@ -34,7 +49,7 @@ class HomePage extends StatelessWidget {
     final result = await PaymeeService.initiatePayment(
       amount: (m.prix as num).toDouble(),
       note: "Achat matière ${m.titre}",
-      firstName: "Asma",        // Tu peux remplacer plus tard par nom de user
+      firstName: "Asma",
       lastName: "BenAhmed",
       email: user.email ?? "",
       phone: "11111111",
@@ -48,17 +63,13 @@ class HomePage extends StatelessWidget {
       return;
     }
 
-    final paymentUrl = result["data"]["payment_url"];
-    final token = result["data"]["token"];
-
-    // ⭐ Aller vers PaymentPageMatiere
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentPageMatiere(
-          paymentUrl: paymentUrl,
-          token: token,
-          matiereId: m.id,          // ID Firestore de la matière
+          paymentUrl: result["data"]["payment_url"],
+          token: result["data"]["token"],
+          matiereId: m.id,
           prix: m.prix,
           titreMatiere: m.titre,
           image: m.image,
@@ -71,78 +82,26 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeVM = Provider.of<HomeViewModel>(context);
     final authVM = Provider.of<AuthViewModel>(context);
+    final user = authVM.user;
+
+    if (user != null) {
+      for (var m in homeVM.filteredMatieres) {
+        if (!purchasedMatieres.containsKey(m.id)) {
+          checkIfPurchased(m.id, user.uid);
+        }
+      }
+    }
 
     return Scaffold(
       appBar: const CustomAppBar(),
-
-      drawer: Drawer(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1A332A), Color(0xFF234138)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              if (authVM.user != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      authVM.user!.email!,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        authVM.logout();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => LoginPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC2A83E),
-                      ),
-                      child: const Text("Déconnexion"),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-
-              const Text(
-                "Catégories",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFC5E782),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              categoryButton(context, "Tous les cours", "all", homeVM),
-              categoryButton(context, "Développement Web & Data", "developpement", homeVM),
-              categoryButton(context, "Marketing & Communication", "marketing", homeVM),
-              categoryButton(context, "Cybersécurité & Réseaux", "cyber", homeVM),
-              categoryButton(context, "Business & Finance", "finance", homeVM),
-            ],
-          ),
-        ),
-      ),
-
+      drawer: buildDrawer(authVM, homeVM, context),
       body: Column(
         children: [
           const TopNavigationBar(),
-
           Expanded(
             child: homeVM.loading
                 ? const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFC5E782),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFFC5E782)),
             )
                 : Padding(
               padding: const EdgeInsets.all(16.0),
@@ -152,18 +111,13 @@ class HomePage extends StatelessWidget {
                   final m = homeVM.filteredMatieres[index];
                   return GestureDetector(
                     onTap: () {
-                      final authVM = Provider.of<AuthViewModel>(context, listen: false);
-
-                      // 🔒 si non connecté → login
                       if (authVM.user == null) {
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => LoginPage()),
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => LoginPage()));
                         return;
                       }
-
-                      // 🟢 sinon → accès aux cours de la matière
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -183,12 +137,63 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget categoryButton(
-      BuildContext context,
-      String title,
-      String category,
-      HomeViewModel vm,
-      ) {
+  Widget buildDrawer(authVM, homeVM, context) {
+    return Drawer(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1A332A), Color(0xFF234138)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            if (authVM.user != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    authVM.user!.email!,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      authVM.logout();
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) => LoginPage()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFC2A83E),
+                    ),
+                    child: const Text("Déconnexion"),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            const Text(
+              "Catégories",
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFC5E782)),
+            ),
+            const SizedBox(height: 20),
+            categoryButton(context, "Tous les cours", "all", homeVM),
+            categoryButton(context, "Développement Web & Data", "developpement", homeVM),
+            categoryButton(context, "Marketing & Communication", "marketing", homeVM),
+            categoryButton(context, "Cybersécurité & Réseaux", "cyber", homeVM),
+            categoryButton(context, "Business & Finance", "finance", homeVM),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget categoryButton(BuildContext context, String title, String category,
+      HomeViewModel vm) {
     final isActive = vm.activeCategory == category;
 
     return Padding(
@@ -221,8 +226,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ⭐ CARTE MATIÈRE
   Widget buildMatiereCard(BuildContext context, dynamic m) {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    final user = authVM.user;
+
+    bool isPurchased = purchasedMatieres[m.id] == true;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -261,7 +270,7 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // ⭐ BOUTON ACCÉDER — sécurisé
+                /// ⭐ Bouton ACCÉDER — inchangé
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC2A83E),
@@ -270,13 +279,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-
-                    if (authVM.user == null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => LoginPage()),
-                      );
+                    if (user == null) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => LoginPage()));
                       return;
                     }
 
@@ -303,32 +308,34 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // ⭐ BOUTON ACHETER — sécurisé
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: isPurchased ? Colors.grey : Colors.green,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-
-                    if (authVM.user == null) {
+                  onPressed: isPurchased
+                      ? null
+                      : () {
+                    if (user == null) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => LoginPage()),
+                        MaterialPageRoute(
+                          builder: (_) => LoginPage(),
+                        ),
                       );
                       return;
                     }
-
                     startPayment(context, m);
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 20),
                     child: Text(
-                      "Acheter (${m.prix} dt)",
+                      isPurchased
+                          ? "Déjà acheté"
+                          : "Acheter (${m.prix} dt)",
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,

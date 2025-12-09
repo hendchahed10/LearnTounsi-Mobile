@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+
 class StatsMatiereViewModel extends ChangeNotifier {
   /* ---------- Services ---------- */
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -16,6 +17,7 @@ class StatsMatiereViewModel extends ChangeNotifier {
   /* ---------- Subscriptions ---------- */ //les streamsubsciprions servent à arrêter l'écoute lorsque le viewmdoel est détruit
   StreamSubscription<QuerySnapshot>? _abonnementsSub;
   StreamSubscription<QuerySnapshot>? _matieresSub;
+
 
   // Cache des noms de matières
   final Map<String, String> _matieresNoms = {};

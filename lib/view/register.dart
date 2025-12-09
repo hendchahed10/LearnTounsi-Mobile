@@ -130,7 +130,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     password.text.trim(),
                     username.text.trim(),
                   );
-
+                  final user = authVM.user;
+                  authVM.AjouterRoleEtudiant(user);
                   if (authVM.user != null) {
                     Navigator.pushReplacement(
                       context,

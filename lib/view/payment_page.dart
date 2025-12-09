@@ -49,14 +49,12 @@ class _PaymentPageState extends State<PaymentPage> {
 
             print("🌐 Navigation : $url");
 
-            // 🎉 Paiement réussi
             if (url.contains("payment_token") && url.contains("transaction")) {
               print("🎉 Paiement détecté comme RÉUSSI !");
 
               savePaymentStatus("PAID");
               sendPaymentEmail();
 
-              // 🔥 Aller vers PaymentSuccessPage AVEC les données nécessaires
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -72,7 +70,7 @@ class _PaymentPageState extends State<PaymentPage> {
               return NavigationDecision.prevent;
             }
 
-            // ❌ Paiement annulé
+
             if (url.contains("paymee-cancel")) {
               savePaymentStatus("CANCELLED");
 
@@ -91,7 +89,7 @@ class _PaymentPageState extends State<PaymentPage> {
       ..loadRequest(Uri.parse(widget.paymentUrl));
   }
 
-  // 📌 Enregistrer le paiement dans Firestore
+
   Future<void> savePaymentStatus(String status) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -113,10 +111,10 @@ class _PaymentPageState extends State<PaymentPage> {
       "date": Timestamp.now(),
     });
 
-    print("📌 Paiement enregistré Firestore : $status");
+
   }
 
-  // 💌 ENVOI EMAIL AU PROFESSEUR
+
   Future<void> sendPaymentEmail() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -144,7 +142,7 @@ class _PaymentPageState extends State<PaymentPage> {
       }),
     );
 
-    print("📧 Email envoyé au professeur !");
+
   }
 
   @override

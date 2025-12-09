@@ -275,6 +275,7 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                _buildImageWidget(cours),
                 Text(
                   cours.titre,
                   maxLines: 2,
@@ -317,32 +318,23 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
     );
   }
 
-  Widget _buildImageWidget(String? imagePath) {
+  Widget _buildImageWidget(Cours c) {
     // Si pas d'image
-    if (imagePath == null || imagePath.isEmpty) {
+    if (c.image == null) {
       return Container(
         height: 120,
-        color: Colors.grey.shade300,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Icon(Icons.image, size: 40, color: Colors.grey),
       );
     }
 
-    // Si c'est déjà une URL complète (commence par http)
-    String imageUrl;
-    if (imagePath.startsWith('http')) {
-      imageUrl = imagePath;
-    } else {
-      // Sinon, construire l'URL Firebase Storage
-      imageUrl = 'https://firebasestorage.googleapis.com/v0/b/learntounsi-7d90b.appspot.com/o/${Uri.encodeComponent(imagePath)}?alt=media';
-    }
-    //Uri.encodeComponent transforme les caractères interdits dans une URL (espaces, #, &, /, etc.) en codes %XX → évite les erreurs 404 ou liens cassés.
-    // 🔍 DEBUG : Afficher l'URL pour vérifier
-    print('🖼️ URL image: $imageUrl');
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Image.network(
-        imageUrl,
+        'assets/images/${c.image}',
         height: 120,
         width: double.infinity,
         fit: BoxFit.cover,
@@ -434,7 +426,6 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
     final descCtrl  = TextEditingController();
     final prixCtrl  = TextEditingController();
     final imageCtrl = TextEditingController();
-    File? _selectedFile; //spécifique à l'image
     final urlGratuitCtrl = TextEditingController();
     final urlPayantCtrl = TextEditingController();
 
@@ -452,25 +443,8 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
               const SizedBox(height: 15),
               TextField(controller: prixCtrl, decoration: const InputDecoration(labelText: 'Prix (DT)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
               const SizedBox(height: 15),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.image),
-                label: const Text('Choisir image'),
-                onPressed: () async {
-                  final result = await FilePicker.platform.pickFiles(type: FileType.image);
-                  if (result != null && result.files.single.path != null) {
-                    _selectedFile = File(result.files.single.path!);
-                    imageCtrl.text = result.files.single.name;   // affiche le nom
-                  }
-                },
-              ),
+              TextField(controller: imageCtrl, decoration: const InputDecoration(labelText: 'Nom fichier image', border: OutlineInputBorder())),
               const SizedBox(height: 15),
-              TextField(
-                controller: imageCtrl,
-                decoration: const InputDecoration(labelText: 'Nom image (ou laisser vide)', border: OutlineInputBorder()),
-                readOnly: _selectedFile != null, // empêche la saisie si fichier choisi
-              ),
-              const SizedBox(height: 20),
-
               TextField(
                 controller: urlGratuitCtrl,
                 decoration: const InputDecoration(
@@ -558,8 +532,7 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
     final titreCtrl = TextEditingController(text: c.titre);
     final descCtrl  = TextEditingController(text: c.description);
     final prixCtrl  = TextEditingController(text: c.prix.toString());
-    final imageCtrl = TextEditingController();
-    File? _selectedFile;
+    final imageCtrl = TextEditingController(text: c.image);
     final urlGratuitCtrl = TextEditingController(text: c.pdf_gratuit);
     final urlPayantCtrl = TextEditingController(text: c.pdf_payant);
 
@@ -577,24 +550,8 @@ class _EcranDetailsMatiereState extends State<EcranDetailsMatiere> {
               const SizedBox(height: 15),
               TextField(controller: prixCtrl, decoration: const InputDecoration(labelText: 'Prix (DT)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
               const SizedBox(height: 15),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.image),
-                label: const Text('Choisir image'),
-                onPressed: () async {
-                  final result = await FilePicker.platform.pickFiles(type: FileType.image);
-                  if (result != null && result.files.single.path != null) {
-                    _selectedFile = File(result.files.single.path!);
-                    imageCtrl.text = result.files.single.name;   // affiche le nom
-                  }
-                },
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: imageCtrl,
-                decoration: const InputDecoration(labelText: 'Nom image (ou laisser vide)', border: OutlineInputBorder()),
-                readOnly: _selectedFile != null, // empêche la saisie si fichier choisi
-              ),
-          const SizedBox(height: 20),
+              TextField(controller: imageCtrl, decoration: const InputDecoration(labelText: 'Nom fichier image', border: OutlineInputBorder())),
+              const SizedBox(height: 20),
               TextField(
                 controller: urlGratuitCtrl,
                 decoration: const InputDecoration(

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:learntounsi_mobile/model/utilisateur.dart';
 
 class AuthViewModel extends ChangeNotifier {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final AuthService _authService = AuthService();
   User? user;
   bool loading = false;
@@ -63,6 +64,11 @@ class AuthViewModel extends ChangeNotifier {
       loading = false;
       notifyListeners();
     }
+  }
+
+  //Ajouter le champ "role"="etudiant" pour chaque etudiant venant de s'inscrire
+  Future<void> AjouterRoleEtudiant(User? u) async{
+    await _db.collection('users').doc(user?.uid).update({'role':'etudiant'});
   }
 
   // Déconnexion

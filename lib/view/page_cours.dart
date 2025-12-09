@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
 import '../services/paymee_service.dart';
 import 'payment_page.dart';
 import 'page_cours_payant.dart';
@@ -24,8 +25,11 @@ class _PageCoursState extends State<PageCours> {
   String? previewUrl;
   String? pdfPayantUrl;
   int prix = 0;
-  bool isPayant = false;
+
+  bool hasBought = false;
   bool loading = true;
+
+  String? courseDocId; // ⭐ NOUVEAU : ID Firestore du cours
 
   @override
   void initState() {
@@ -33,11 +37,24 @@ class _PageCoursState extends State<PageCours> {
     loadCourse();
   }
 
+  Future<void> checkIfBought() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || courseDocId == null) return;
+
+    final snap = await FirebaseFirestore.instance
+        .collection("achat")
+        .where("user_id", isEqualTo: user.uid)
+        .where("cours_id", isEqualTo: courseDocId) // ⭐ CORRECTION ICI
+        .get();
+
+    hasBought = snap.docs.isNotEmpty;
+  }
+
   Future<void> loadCourse() async {
     final snap = await FirebaseFirestore.instance
         .collection("cours")
         .where("titre", isEqualTo: widget.cours)
-        .where("matiere", isEqualTo: widget.matiere)       // 🔥 assurance de trouver le bon cours
+        .where("matiere", isEqualTo: widget.matiere)
         .limit(1)
         .get();
 
@@ -47,10 +64,9 @@ class _PageCoursState extends State<PageCours> {
     }
 
     final doc = snap.docs.first;
-    final data = doc.data() as Map<String, dynamic>;
+    courseDocId = doc.id;
 
-    final payantValue = data["payant"].toString().trim().toLowerCase();
-    isPayant = payantValue == "oui" || payantValue == "true";
+    final data = doc.data() as Map<String, dynamic>;
 
     prix = data["prix"] is int
         ? data["prix"]
@@ -58,6 +74,8 @@ class _PageCoursState extends State<PageCours> {
 
     previewUrl = data["pdf_gratuit"];
     pdfPayantUrl = data["pdf_payant"];
+
+    await checkIfBought();
 
     setState(() => loading = false);
   }
@@ -101,7 +119,7 @@ class _PageCoursState extends State<PageCours> {
         builder: (_) => PaymentPage(
           paymentUrl: paymentUrl,
           token: token,
-          courseId: widget.cours,
+          courseId: courseDocId!, // ⭐ IMPORTANT
           price: prix,
           description: "PDF complet : ${widget.cours}",
           image: "pdf.png",
@@ -135,8 +153,7 @@ class _PageCoursState extends State<PageCours> {
             ),
           ),
 
-          // 🔥 SI payant = non → bouton acheter
-          if (!isPayant)
+          if (!hasBought)
             Container(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
@@ -152,8 +169,7 @@ class _PageCoursState extends State<PageCours> {
               ),
             ),
 
-          // 🔥 SI payant = oui → bouton accéder
-          if (isPayant)
+          if (hasBought)
             Container(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(

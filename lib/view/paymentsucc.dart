@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 class PaymentSuccessPage extends StatelessWidget {
   final String coursId;
   final String matiere;
@@ -17,12 +16,10 @@ class PaymentSuccessPage extends StatelessWidget {
     required this.pdfPayantUrl,
   });
 
-  // 🔥 Enregistrer l'achat + mettre à jour le cours
   Future<void> saveAchat() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // 🟢 1) Enregistrer l'achat
     await FirebaseFirestore.instance.collection("achat").add({
       "cours_id": coursId,
       "user_id": user.uid,
@@ -31,19 +28,7 @@ class PaymentSuccessPage extends StatelessWidget {
       "date": Timestamp.now(),
     });
 
-    // 🟢 2) Trouver le cours dans Firestore par titre et MAJ payant = oui
-    final snap = await FirebaseFirestore.instance
-        .collection("cours")
-        .where("titre", isEqualTo: coursId)
-        .limit(1)
-        .get();
 
-    if (snap.docs.isNotEmpty) {
-      await snap.docs.first.reference.update({"payant": "oui"});
-      print("🔥 Champ 'payant' mis à jour pour le cours : $coursId");
-    } else {
-      print("❌ Aucun cours trouvé avec le titre : $coursId");
-    }
   }
 
   @override
@@ -63,7 +48,11 @@ class PaymentSuccessPage extends StatelessWidget {
             SizedBox(height: 20),
 
             ElevatedButton(
-              onPressed: () { Navigator.popUntil(context, (route) => route.isFirst); },
+              onPressed: () async {
+                await saveAchat();
+
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
               child: Text("Retour à l'accueil"),
             )
           ],

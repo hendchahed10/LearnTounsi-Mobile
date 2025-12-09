@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class PayerParM extends StatelessWidget {
-  final String matiereId;     // 🔥 ID Firestore du document matiere
-  final String matiereTitre;  // 🔥 titre de la matière
-  final int prix;             // 🔥 prix numérique
+  final String matiereId;     // ID Firestore de la matière
+  final String matiereTitre;  // Titre de la matière
+  final int prix;             // Prix d'achat
 
   const PayerParM({
     super.key,
@@ -14,7 +14,6 @@ class PayerParM extends StatelessWidget {
     required this.prix,
   });
 
-  // ✅ 1) Enregistrer l'abonnement dans Firestore
   Future<void> saveAbonnement() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -29,33 +28,26 @@ class PayerParM extends StatelessWidget {
     print("🎉 Abonnement enregistré !");
   }
 
-  // ✅ 2) Mettre la matière en payant = oui
-  Future<void> updateMatierePayant() async {
-    final snap = await FirebaseFirestore.instance
-        .collection("matiere")
-        .doc(matiereId)
-        .get();
+  Future<void> saveCoursAchetes() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-    if (snap.exists) {
-      await snap.reference.update({"payant": "oui"});
-      print("🔥 Matière mise à jour : payant = oui");
-    } else {
-      print("❌ Matière non trouvée : $matiereId");
-    }
-  }
-
-  // ✅ 3) Mettre tous les cours de cette matière en payant = oui
-  Future<void> updateCoursDeLaMatiere() async {
     final QuerySnapshot snap = await FirebaseFirestore.instance
         .collection("cours")
         .where("matiere", isEqualTo: matiereTitre)
         .get();
 
     for (var doc in snap.docs) {
-      await doc.reference.update({"payant": "oui"});
+      await FirebaseFirestore.instance.collection("achat").add({
+        "user_id": user.uid,
+        "cours_id": doc.id,
+        "date": Timestamp.now(),
+        "montant": prix,
+        "statut": "payé",
+      });
     }
 
-    print("🔥 Tous les cours de la matière '$matiereTitre' sont maintenant payants !");
+    print("🛒 Tous les cours de la matière '$matiereTitre' ont été ajoutés à 'achat'.");
   }
 
   @override
@@ -76,17 +68,11 @@ class PayerParM extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () async {
-
-                // 🟢 1) Enregistrer l’abonnement
                 await saveAbonnement();
 
-                // 🟢 2) Mettre la matière en payant
-                await updateMatierePayant();
+                await saveCoursAchetes();
 
-                // 🟢 3) Mettre tous les cours de cette matière en payant
-                await updateCoursDeLaMatiere();
 
-                // 🟢 4) Retour à l’accueil
                 Navigator.popUntil(context, (route) => route.isFirst);
               },
               child: const Text("Retour à l'accueil"),

@@ -10,10 +10,10 @@ import 'payerparM.dart';
 class PaymentPageMatiere extends StatefulWidget {
   final String paymentUrl;
   final String token;
-  final String matiereId;     // ID Firestore de la matière
-  final int prix;             // montant payé
-  final String titreMatiere;  // titre
-  final String image;         // image (inutile mais conservé pour compatibilité)
+  final String matiereId;
+  final int prix;
+  final String titreMatiere;
+  final String image;
 
   const PaymentPageMatiere({
     super.key,
@@ -44,14 +44,14 @@ class _PaymentPageMatiereState extends State<PaymentPageMatiere> {
             final url = request.url;
             print("🌐 Navigation : $url");
 
-            // 🎉 Paiement réussi
+
             if (url.contains("payment_token") && url.contains("transaction")) {
-              print("🎉 Paiement matière détecté comme RÉUSSI !");
+
 
               savePaymentStatus("PAID");
               sendPaymentEmail();
 
-              // 🔥 Redirection vers PayerParM
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -66,7 +66,7 @@ class _PaymentPageMatiereState extends State<PaymentPageMatiere> {
               return NavigationDecision.prevent;
             }
 
-            // ❌ Paiement annulé
+
             if (url.contains("paymee-cancel")) {
               savePaymentStatus("CANCELLED");
               ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +83,7 @@ class _PaymentPageMatiereState extends State<PaymentPageMatiere> {
       ..loadRequest(Uri.parse(widget.paymentUrl));
   }
 
-  // 📌 Enregistrer le paiement dans Firestore
+
   Future<void> savePaymentStatus(String status) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -98,10 +98,10 @@ class _PaymentPageMatiereState extends State<PaymentPageMatiere> {
       "date": Timestamp.now(),
     });
 
-    print("📌 Paiement MATIÈRE enregistré Firestore : $status");
+
   }
 
-  // 💌 Envoi email
+
   Future<void> sendPaymentEmail() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;

@@ -40,9 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await Future.wait([
         _loadUser(user.uid),
-
         _loadAchats(),
-
         _loadConsultes(user.uid),
         _loadTermines(user.uid),
       ]);
@@ -60,14 +58,43 @@ class _ProfilePageState extends State<ProfilePage> {
     if (doc.exists) firestoreUser = doc.data();
   }
 
+
+
   Future<void> _loadAchats() async {
-    final snap = await FirebaseFirestore.instance
-        .collection('cours')
-        .where('payant', isEqualTo: "oui")
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+
+    final achatsSnap = await FirebaseFirestore.instance
+        .collection('achat')
+        .where('user_id', isEqualTo: user.uid)
         .get();
 
-    achats = snap.docs.map((d) => {"id": d.id, ...d.data()}).toList();
+    achats = [];
+
+    for (var doc in achatsSnap.docs) {
+      final achat = doc.data();
+      final coursId = achat["cours_id"];
+
+
+      final coursDoc = await FirebaseFirestore.instance
+          .collection("cours")
+          .doc(coursId)
+          .get();
+
+      if (coursDoc.exists) {
+        achats.add({
+          "id": doc.id,
+          "cours_id": coursId,
+          "titre": coursDoc.data()?["titre"] ?? "",
+          "matiere": coursDoc.data()?["matiere"] ?? "",
+          "prix": coursDoc.data()?["prix"] ?? 0,
+          "statut": achat["statut"] ?? "payé",
+        });
+      }
+    }
   }
+
 
   Future<void> _loadConsultes(String uid) async {
     final snap = await FirebaseFirestore.instance
@@ -96,7 +123,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // 🔹 4) Charger cours terminés
   Future<void> _loadTermines(String uid) async {
     final snap = await FirebaseFirestore.instance
         .collection('cours_termines')
@@ -106,7 +132,6 @@ class _ProfilePageState extends State<ProfilePage> {
     termines = snap.docs.map((d) => {"id": d.id, ...d.data()}).toList();
   }
 
-
   void _computeProgression() {
     if (consultes.isEmpty) {
       progression = 0;
@@ -115,7 +140,6 @@ class _ProfilePageState extends State<ProfilePage> {
     progression = ((termines.length / consultes.length) * 100).round().clamp(0, 100);
   }
 
-  // 🔹 6) Enregistrer un champ modifié
   Future<void> _saveField() async {
     if (editingField == null) return;
 
@@ -135,7 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // 🔹 Champ éditable
   Widget _buildEditableField(String label, String key) {
     final value = firestoreUser?[key] ?? "—";
     final isEditing = editingField == key;
@@ -147,6 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(
               width: 140,
               child: Text("$label :", style: const TextStyle(fontWeight: FontWeight.bold))),
+
           Expanded(
             child: isEditing
                 ? TextField(
@@ -160,6 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
             )
                 : Text(value.toString()),
           ),
+
           if (!isEditing)
             IconButton(
               icon: const Icon(Icons.edit, size: 18),
@@ -205,7 +230,6 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             Card(
               elevation: 4,
               child: Padding(
@@ -248,7 +272,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 20),
 
-
             Row(
               children: [
                 _buildTabButton("Cours achetés", "achats"),
@@ -268,7 +291,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  //boutton
   Widget _buildTabButton(String label, String key) {
     final isActive = activeTab == key;
 
@@ -291,7 +313,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // achetes
   Widget _buildAchatsTable() {
     if (achats.isEmpty) {
       return const Padding(
@@ -314,8 +335,8 @@ class _ProfilePageState extends State<ProfilePage> {
             cells: [
               DataCell(Text(c['titre'] ?? "")),
               DataCell(Text(c['matiere'] ?? "")),
-              DataCell(Text("${c['prix'] ?? 0} DT")),
-              const DataCell(Text("Payé")),
+              DataCell(Text("${c['prix']} DT")),
+              DataCell(Text(c['statut'] ?? "payé")),
             ],
           );
         }).toList(),
@@ -323,7 +344,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  //termines
   Widget _buildTerminesTable() {
     if (termines.isEmpty) {
       return const Padding(
@@ -353,7 +373,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  //consultes
   Widget _buildConsultesTable() {
     if (consultes.isEmpty) {
       return const Padding(

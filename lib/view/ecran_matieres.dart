@@ -237,7 +237,7 @@ class _EcranMatieresState extends State<EcranMatieres> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildImageWidget(matiere.image),
+                _buildImageWidget(matiere),
                 Text(
                   matiere.titre,
                   maxLines: 2,
@@ -280,9 +280,9 @@ class _EcranMatieresState extends State<EcranMatieres> {
     );
   }
 
-  Widget _buildImageWidget(String? imagePath) {
+  Widget _buildImageWidget(Matiere m) {
     // Si pas d'image
-    if (imagePath == null || imagePath.isEmpty) {
+    if (m.image == null) {
       return Container(
         height: 120,
         decoration: BoxDecoration(
@@ -296,7 +296,7 @@ class _EcranMatieresState extends State<EcranMatieres> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Image.network(
-        'assets/images/matieres/$imagePath',
+        'assets/images/${m.image}',
         height: 120,
         width: double.infinity,
         fit: BoxFit.cover,
@@ -357,7 +357,6 @@ class _EcranMatieresState extends State<EcranMatieres> {
     final prixCtrl  = TextEditingController();
     final catCtrl   = TextEditingController();
     final imageCtrl = TextEditingController();
-    String? imageSelectionnee;
 
     showDialog(
       context: context,
@@ -375,21 +374,8 @@ class _EcranMatieresState extends State<EcranMatieres> {
               const SizedBox(height: 15),
               TextField(controller: catCtrl, decoration: const InputDecoration(labelText: 'Catégorie', border: OutlineInputBorder())),
               const SizedBox(height: 15),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.image),
-                label: const Text('Choisir image'),
-                onPressed: () async {
-                  final result = await FilePicker.platform.pickFiles(type: FileType.image);
-                  if (result != null && result.files.single.path != null) {
-                    imageCtrl.text = result.files.single.name;   // affiche le nom
-                  }
-                },
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: imageCtrl,
-                decoration: const InputDecoration(labelText: 'Nom image (ou laisser vide)', border: OutlineInputBorder()),
-              ),
+              TextField(controller: imageCtrl, decoration: const InputDecoration(labelText: 'Nom fichier image', border: OutlineInputBorder())),
+              const SizedBox(height: 15,)
             ],
           ),
         ),
@@ -449,8 +435,7 @@ class _EcranMatieresState extends State<EcranMatieres> {
     final descCtrl  = TextEditingController(text: m.description);
     final prixCtrl  = TextEditingController(text: m.prix.toString());
     final catCtrl   = TextEditingController(text: m.category);
-    final imageCtrl = TextEditingController();
-    File? _selectedFile;
+    final imageCtrl = TextEditingController(text: m.image);
 
     showDialog(
       context: context,
@@ -467,24 +452,9 @@ class _EcranMatieresState extends State<EcranMatieres> {
               TextField(controller: prixCtrl, decoration: const InputDecoration(labelText: 'Prix (DT)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
               const SizedBox(height: 15),
               TextField(controller: catCtrl, decoration: const InputDecoration(labelText: 'Catégorie', border: OutlineInputBorder())),
-            const SizedBox(height: 15),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.image),
-              label: const Text('Choisir image'),
-              onPressed: () async {
-                final result = await FilePicker.platform.pickFiles(type: FileType.image);
-                if (result != null && result.files.single.path != null) {
-                  _selectedFile = File(result.files.single.path!);
-                  imageCtrl.text = result.files.single.name;   // affiche le nom
-                }
-              },
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: imageCtrl,
-              decoration: const InputDecoration(labelText: 'Nom image (ou laisser vide)', border: OutlineInputBorder()),
-              readOnly: _selectedFile != null, // empêche la saisie si fichier choisi
-            ),
+              const SizedBox(height: 15),
+              TextField(controller: imageCtrl, decoration: const InputDecoration(labelText: 'Nom fichier image', border: OutlineInputBorder())),
+              const SizedBox(height: 15),
             ],
           ),
         ),
